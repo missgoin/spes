@@ -11,10 +11,10 @@ KERNEL_DIR="$(pwd)"
 ##----------------------------------------------------------##
 # Device Name and Model
 MODEL=POCO
-DEVICE=gki
+DEVICE=spes
 
 # Kernel Version Code
-VERSION=
+#VERSION=
 
 # Kernel Defconfig
 DEFCONFIG=${DEVICE}_defconfig
@@ -24,7 +24,7 @@ DISABLE_LTO=1
 THIN_LTO=0
 
 # Files
-IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz-dtb
+IMAGE=$(pwd)/out/arch/arm64/boot/Image.gz
 #DTBO=$(pwd)/out/arch/arm64/boot/dtbo.img
 #DTB=$(pwd)/out/arch/arm64/boot/dts/qcom
 
@@ -42,13 +42,13 @@ TANGGAL=$(date +"%F%S")
 
 # Specify Final Zip Name
 ZIPNAME=SUPER.KERNEL
-FINAL_ZIP=${ZIPNAME}-${DEVICE}-${TANGGAL}.zip
-FINAL_ZIP_ALIAS=Karenulspes-${TANGGAL}.zip
+FINAL_ZIP=${ZIPNAME}-${DEVICE}-${DATE}.zip
+FINAL_ZIP_ALIAS=Karenulspes-${DATE}.zip
 
 ##----------------------------------------------------------##
 # Specify compiler.
 
-COMPILER=cosmic
+COMPILER=proton
 
 ##----------------------------------------------------------##
 # Specify Linker
@@ -189,21 +189,20 @@ START=$(date +"%s")
 	       make -kj$(nproc --all) O=out \
 	       ARCH=arm64 \
 	       CC=clang \
-	       HOSTCC=clang \
-	       HOSTCXX=clang++ \
 	       CROSS_COMPILE=aarch64-linux-gnu- \
 	       CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
-	       LLVM=1 \
+	       #LLVM=1 \
 	       #LLVM_IAS=1 \
 	       #LD=${LINKER} \
-	       AR=llvm-ar \
-	       NM=llvm-nm \
-	       OBJCOPY=llvm-objcopy \
-	       OBJDUMP=llvm-objdump \
-	       STRIP=llvm-strip \
-	       READELF=llvm-readelf \
-	       OBJSIZE=llvm-size \
+	       #AR=llvm-ar \
+	       #NM=llvm-nm \
+	       #OBJCOPY=llvm-objcopy \
+	       #OBJDUMP=llvm-objdump \
+	       #STRIP=llvm-strip \
+	       #READELF=llvm-readelf \
+	       #OBJSIZE=llvm-size \
 	       V=$VERBOSE 2>&1 | tee error.log
+	       
 	elif [ -d ${KERNEL_DIR}/cosmic ];
 	   then
 	       make -j$(nproc --all) O=out \
@@ -254,6 +253,12 @@ START=$(date +"%s")
 	       OBJSIZE=llvm-size \
 	       V=$VERBOSE 2>&1 | tee error.log
 	fi
+	
+	
+	echo "*** Verify Image.gz-dtb | dtbo.img | dtb ***"
+    ls $(pwd)/out/arch/arm64/boot/Image.gz
+    #ls $(pwd)/out/arch/arm64/boot/dtbo.img
+    
 }
 
 ##----------------------------------------------------------------##
@@ -265,10 +270,12 @@ function zipping() {
 	
 	# Zipping and Push Kernel
 	cd AnyKernel3 || exit 1
-        zip -r9 ${FINAL_ZIP_ALIAS} *
-        MD5CHECK=$(md5sum "$FINAL_ZIP_ALIAS" | cut -d' ' -f1)
-        echo "Zip: $FINAL_ZIP_ALIAS"
-        curl -T $FINAL_ZIP_ALIAS https://oshi.at; echo
+        zip -r9 ${FINAL_ZIP} *
+        MD5CHECK=$(md5sum "$FINAL_ZIP" | cut -d' ' -f1)
+        echo "Zip: $FINAL_ZIP"
+        #curl -T $FINAL_ZIP_ALIAS temp.sh; echo
+        #curl -T $FINAL_ZIP_ALIAS https://oshi.at; echo
+        curl --upload-file $FINAL_ZIP https://free.keep.sh; echo
     cd ..
 }
     
